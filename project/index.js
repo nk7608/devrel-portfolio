@@ -1,33 +1,51 @@
-// Add typing animation to response blocks
+// Add typing animation to response blocks with improved reliability
 document.addEventListener('DOMContentLoaded', () => {
-  // Type animation for response blocks
-  const responses = document.querySelectorAll('.response pre');
-  
-  responses.forEach(response => {
-    const text = response.textContent;
-    response.textContent = '';
-    let index = 0;
-    
-    function typeText() {
-      if (index < text.length) {
-        response.textContent += text.charAt(index);
-        index++;
-        setTimeout(typeText, 5); // Slightly faster typing for better UX
-      }
+  // Function to initialize the typing animation
+  function initTypeAnimation() {
+    const responses = document.querySelectorAll('.response pre');
+    if (!responses.length) {
+      // If elements aren't found, try again in a bit
+      setTimeout(initTypeAnimation, 100);
+      return;
     }
     
-    // Start typing when response is in view
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          typeText();
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1 });
-    
-    observer.observe(response);
-  });
+    responses.forEach((response, idx) => {
+      // Store original content
+      const originalText = response.textContent;
+      response.setAttribute('data-original', originalText);
+      response.textContent = '';
+      
+      // Add a class for styling while typing
+      response.classList.add('typing');
+      
+      // Start typing with a staggered delay
+      setTimeout(() => {
+        let i = 0;
+        let typingInterval = setInterval(() => {
+          if (i < originalText.length) {
+            response.textContent += originalText.charAt(i);
+            i++;
+          } else {
+            clearInterval(typingInterval);
+            response.classList.remove('typing');
+            response.classList.add('typed');
+          }
+        }, 5);
+      }, idx * 250);
+    });
+  }
+  
+  // Start animation after a short delay to ensure DOM is ready
+  setTimeout(initTypeAnimation, 200);
+  
+  // Fallback: If after 10 seconds any element is still empty, restore content
+  setTimeout(() => {
+    document.querySelectorAll('.response pre').forEach(el => {
+      if (!el.textContent && el.hasAttribute('data-original')) {
+        el.textContent = el.getAttribute('data-original');
+      }
+    });
+  }, 10000);
 
   // Smooth scrolling for navigation links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {

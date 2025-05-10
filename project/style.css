@@ -342,3 +342,33 @@ footer {
     text-align: center;
   }
 }
+
+/* Add these to your existing style.css file */
+
+/* Typing animation styling */
+.response pre.typing {
+  border-right: 2px solid var(--primary-green);
+}
+
+.response pre.typed {
+  border-right: none;
+}
+
+/* Ensure content is always visible regardless of animation state */
+.response pre:empty::after {
+  content: attr(data-original);
+  opacity: 0.001; /* Nearly invisible, but ensures height */
+  position: absolute;
+}
+
+/* Improve mobile responsiveness */
+@media (max-width: 500px) {
+  .endpoint__url {
+    font-size: 0.8rem;
+    word-break: break-all;
+  }
+  
+  .response pre {
+    font-size: 0.8rem;
+  }
+}
